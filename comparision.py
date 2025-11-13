@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 import torch
+from tqdm import tqdm
 
 from problem import Problem
 
@@ -28,7 +29,18 @@ class Result:
 class OptimizerSchema:
     def __init__(self, optimizer_class: type, params: dict):
         self.optimizer_class = optimizer_class
-        self.params = params
+        self.params = dict(params)
+
+    def __hash__(self):
+        return hash((self.optimizer_class, tuple(sorted(self.params.items()))))
+
+    def __eq__(self, other):
+        if not isinstance(other, OptimizerSchema):
+            return False
+        return (
+            self.optimizer_class == other.optimizer_class
+            and self.params == other.params
+        )
 
 
 class Comparision:
@@ -91,8 +103,9 @@ class Comparision:
         }
 
         for optim in self.optimizers:
-            optim_name = optim.optimizer_class.__name__
-            data_to_save["optimizers"][optim_name] = {
+            param_suffix = "_".join(f"{k}={v}" for k, v in optim.params.items())
+            unique_name = f"{optim.optimizer_class.__name__}({param_suffix})"
+            data_to_save["optimizers"][unique_name] = {
                 "params": optim.params,
                 "values": self.results[optim].values,
             }
@@ -110,7 +123,10 @@ class Comparision:
         x.requires_grad_(True)
         opt = schema.optimizer_class([x], **schema.params)
 
-        for i in range(self.epochs):
+        for i in tqdm(
+            range(self.epochs),
+            desc=f"Epochs for {schema.optimizer_class.__name__} rep {repetition}",
+        ):
             opt.zero_grad()
             loss = self.problem(x)
             loss.backward()
@@ -121,5 +137,5 @@ class Comparision:
 
             if i % self.log_freq == 0:
                 print(
-                    f"[{schema.optimizer_class.__name__}] Repetition {repetition} epoch {i}: {loss_val:.6f}"
+                    f"[{schema.optimizer_class.__name__}] epoch {i}: {loss_val:.6f}, repetition {repetition}"
                 )

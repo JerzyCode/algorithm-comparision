@@ -25,8 +25,7 @@ def plot_comparision(results_path: str, figsize=(8, 5)):
         std = values.std(axis=0)
         mean = values.mean(axis=0)
 
-        label = f"{optim_name} {optim_data['params']}"
-        plt.plot(mean, label=label)
+        plt.plot(mean, label=optim_name)
         plt.fill_between(range(len(mean)), mean - std, mean + std, alpha=0.2)
 
     plt.legend(loc="upper right")
