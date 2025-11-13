@@ -1,5 +1,6 @@
 import abc
 from abc import abstractmethod
+from typing import Optional
 
 import torch
 
@@ -9,13 +10,13 @@ class Problem(abc.ABC):
         self,
         name: str,
         dim: int,
-        shift: torch.Tensor,
-        lower_bound: float,
-        upper_bound: float,
+        shift: Optional[torch.Tensor] = None,
+        lower_bound: float = -100.0,
+        upper_bound: float = 100.0,
     ):
         self.name = name
         self.dim = dim
-        self.shift = shift
+        self.shift = shift if shift is not None else torch.zeros(dim)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
@@ -25,8 +26,8 @@ class Problem(abc.ABC):
 
 
 class Sphere(Problem):
-    def __init__(self, dim: int, shift: torch.Tensor):
-        super().__init__("Sphere", dim, shift, -100.0, 100.0)
+    def __init__(self, dim: int, shift: Optional[torch.Tensor] = None):
+        super().__init__("Sphere", dim, shift, -5.0, 5.0)
 
     def __call__(self, x: torch.Tensor):
         z = x - self.shift
@@ -34,7 +35,7 @@ class Sphere(Problem):
 
 
 class Rastrigin(Problem):
-    def __init__(self, dim: int, shift: torch.Tensor):
+    def __init__(self, dim: int, shift: Optional[torch.Tensor] = None):
         super().__init__("Rastrigin", dim, shift, -5.12, 5.12)
 
     def __call__(self, x: torch.Tensor):
@@ -43,7 +44,7 @@ class Rastrigin(Problem):
 
 
 class Rosenbrock(Problem):
-    def __init__(self, dim: int, shift: torch.Tensor):
+    def __init__(self, dim: int, shift: Optional[torch.Tensor] = None):
         super().__init__("Rosenbrock", dim, shift, -30.0, 30.0)
 
     def __call__(self, x: torch.Tensor):
