@@ -10,6 +10,7 @@ dependencies = [
     "numpy>=2.3.4",
     "pillow>=12.0.0",
     "polars>=1.35.2",
+    "sqlalchemy>=2.0.44",
     "torch",
     "tqdm>=4.67.1",
 ]

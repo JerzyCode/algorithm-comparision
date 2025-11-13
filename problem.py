@@ -1,4 +1,5 @@
 import abc
+import math
 from abc import abstractmethod
 from typing import Optional
 
@@ -50,3 +51,19 @@ class Rosenbrock(Problem):
     def __call__(self, x: torch.Tensor):
         z = x - self.shift
         return torch.sum(100 * (z[1:] - z[:-1] ** 2) ** 2 + (z[:-1] - 1) ** 2)
+
+
+class Ackley(Problem):
+    def __init__(self, dim: int, shift: Optional[torch.Tensor] = None):
+        super().__init__("Ackley", dim, shift, -32.0, 32.0)
+
+    def __call__(self, x: torch.Tensor):
+        z = x - self.shift
+        a = 20
+        b = 0.2
+        c = 2 * math.pi
+        sum_sq = torch.sum(z**2)
+        sum_cos = torch.sum(torch.cos(c * z))
+        term1 = -a * torch.exp(-b * torch.sqrt(sum_sq / self.dim))
+        term2 = -torch.exp(sum_cos / self.dim)
+        return term1 + term2 + a + math.e

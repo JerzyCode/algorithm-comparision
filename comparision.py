@@ -63,7 +63,7 @@ class Comparision:
         self.date = time.strftime("%Y-%m-%d")
         self.log_freq = round(0.1 * epochs) if not log_freq else log_freq
         self.results_path = Path(results_dir).joinpath(
-            f"{self.problem.name}_{self.date}.json"
+            f"{self.problem.name}_D{self.problem.dim}_{self.date}.json"
         )
 
         self.results = {optim: Result(self.repetitions) for optim in self.optimizers}
